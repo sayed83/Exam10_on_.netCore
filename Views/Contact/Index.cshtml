@@ -1,0 +1,115 @@
+﻿
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <script type="text/javascript">
+        var model= {
+            id: ko.observable(),
+            email: ko.observable(),
+            records: ko.observableArray([])
+
+        }
+        function Ajax(method, url) {
+            var contactData = {
+                "id": $("#cid").val(),
+                "email": $("#email").val()
+            };
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    
+                    type: method,
+                    url: url,
+                    data: JSON.stringify(contactData),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+
+                        res = data;
+                        resolve(res);
+                        $('#form').trigger("reset");
+                    },
+                    error: function (e) {
+                        alert(e.responseText);
+                    }
+
+                });
+            });
+
+        }
+        function refresh() {
+            Ajax("GET", "/contact/get").then(function (a) {
+                model.records(a);
+            })
+        }
+        refresh();
+
+        function work(method, url, alert) {
+            Ajax(method, url).then(function (a) {
+                refresh();
+            });
+        }
+
+        function edit(cid, email) {
+            $("#cid").val(cid);
+            $("#email").val(email);
+        }
+
+        $(document).ready(function () {
+            ko.applyBindings();
+        });
+    </script>
+</head>
+<body>
+    <form id="form">
+        <div class="container">
+            <div>
+                <label for="cid">id</label>
+                <div><input type="text" id="cid" data-bind="value: model.id" /></div>
+            </div>
+            <div>
+                <label for="email">email</label>
+                <div><input type="text" id="email" data-bind="value: model.email" /></div>
+            </div>
+            <div>
+                <input type="button" value="Save" data-bind="click:function(){work('POST','/Contact/Create',alert('Successfully Created'))}" />
+                <input type="button" value="Update" data-bind="click:function(){work('POST','/Contact/Edit/'+$('#cid').val(),alert('Successfully Updated'))}" />
+                <input type="button" value="Delete" data-bind="click:function(){work('GET','/Contact/Delete/'+$('#cid').val(),alert('Successfully Deleted'))}" />
+            </div>
+        </div>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:model.records()">
+            <tr>
+                <td data-bind="text:id">Id</td>
+                <td data-bind="text:email">Email</td>
+                <td><a href="#" data-bind="click:function(){edit(id,email)}">Edit</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    @*<table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>email</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:model.records()">
+            <tr>
+                <td data-bind="text:id">id</td>
+                <td data-bind="text:email">email</td>
+                <td>
+                    <a href="#" data-bind="click:function(){edit(id,email)}">edit</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>*@
+</body>
+</html>

@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+@*<link href="~/bootstrap.min.css" rel="stylesheet" />*@
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <legend>Login</legend>
+        <div class="form-group">
+            Username:
+            <input type="text" name="uname" />
+
+
+            Password:
+            <input type="password" name="pass" />
+
+
+            <input type="submit" value="Login" />
+        </div>
+    </fieldset>
+
+
+}

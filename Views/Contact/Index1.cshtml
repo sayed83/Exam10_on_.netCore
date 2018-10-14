@@ -1,0 +1,120 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+
+    
+
+    <script type="text/javascript">
+        var model = {
+            id: ko.observable(""),
+            email: ko.observable(""),
+            records: ko.observableArray([]),
+        }
+
+        function Ajax(method, url) {
+            var productData = {
+                "id": $("#cid").val(),
+                "email": $("#email").val()
+            };
+            //alert(JSON.stringify(productData));
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: method,
+                    url: url,
+                    data: JSON.stringify(productData),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        res = data;
+                        //alert(res);
+                        //alert(JSON.stringify(res));
+                        resolve(res);
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseText);
+                    }
+                });
+            });
+        }
+
+        function refresh() {
+            Ajax("GET", "/contact/get").then(function (a) {
+                // alert(JSON.stringify(a));
+                //var b = a.map(function (item) { return item.email; });
+                model.records(a);
+
+                //alert(a.length);
+            })
+        }
+        refresh();
+
+        function work(method, url) {
+            //alert(model+"::::"+url);
+            Ajax(method, url).then(function (a) {
+                refresh();
+            });
+        }
+
+        function edit(cid, email) {
+            $("#cid").val(cid);
+            $("#email").val(email);
+        }
+
+        $(document).ready(function () {
+            ko.applyBindings();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Contact Info</h2>
+        <div>
+            <label for="cid">id:</label>
+            <div>
+                <input type="text" id="cid" data-bind="value: model.id" />
+            </div>
+        </div>
+        <div>
+            <label for="email">email:</label>
+            <div>
+                <input type="text" id="email" data-bind="value: model.email" />
+            </div>
+        </div>
+        <div>
+            <input type="button" class="btn btn-danger" value="Add" data-bind="click:function(){work('POST','/Contact/Create')}" />
+            <input type="button" value="Update" data-bind="click:function(){work('POST','/Contact/Edit/'+$('#cid').val())}" />
+            <input type="button" value="Delete" data-bind="click:function(){work('GET','/Contact/Delete/'+$('#cid').val())}" />
+        </div>
+    </div>
+    <br />
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>email</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:model.records()">
+            <tr>
+                <td data-bind="text:id">id</td>
+                <td data-bind="text:email">email</td>
+                <td>
+                    <a href="#" data-bind="click:function(){edit(id,email)}">Edit</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
